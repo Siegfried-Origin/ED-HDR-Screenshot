@@ -11,7 +11,7 @@ https://github.com/bo3b/3Dmigoto/releases
 
 This mod enables HDR screenshot capture in Elite Dangerous.
 
-When you press **F12** (configurable), the tool captures two images from the game's rendering pipeline: a sharp image and a blurred image. Both are saved in **OpenEXR** format or 32bit float **TIFF** format, allowing you to adjust exposure, tone mapping, bloom, and other post-processing effects that are normally baked into standard game or Steam screenshots.
+When you press **F12** (configurable), the tool captures an HDR image from the game's rendering pipeline. Depending on the format specified in the configuration, it is saved in **OpenEXR** format or 32bit float **TIFF** format (default), allowing you to adjust exposure, tone mapping, bloom, and other post-processing effects that are normally baked into standard game or Steam screenshots.
 
 The images are saved in the **ED Screenshot** subdirectory of your Pictures folder.
 
