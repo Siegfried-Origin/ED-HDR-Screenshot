@@ -2,10 +2,6 @@
 
 #include <cstdint>
 
-#include <stb_image.h>
-#include <stb_image_write.h>
-#include <tinyexr.h>
-
 #if defined(_XBOX_ONE) && defined(_TITLE)
 #include <d3d11_x.h>
 #else
@@ -24,6 +20,12 @@ public:
         float& b);
 
     static bool SaveR11G11B10TextureAsEXR(
+        ID3D11Device* device,
+        ID3D11DeviceContext* context,
+        ID3D11Texture2D* srcTex,
+        const char* filename);
+
+    static bool FrameExport::SaveR11G11B10TextureAsTIFF(
         ID3D11Device* device,
         ID3D11DeviceContext* context,
         ID3D11Texture2D* srcTex,

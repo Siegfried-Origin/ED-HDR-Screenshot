@@ -26,6 +26,18 @@ extern HINSTANCE migoto_handle;
 class CommandListCommand;
 class CommandList;
 
+enum ScreenshotFormat
+{
+	SCREENSHOT_FORMAT_EXR,
+	SCREENSHOT_FORMAT_TIFF,
+	SCREENSHOT_FORMAT_INVALID
+};
+
+static EnumName_t<const wchar_t*, ScreenshotFormat> ScreenshotFormatNames[] = {
+	{L"exr", ScreenshotFormat::SCREENSHOT_FORMAT_EXR},
+	{L"tiff", ScreenshotFormat::SCREENSHOT_FORMAT_TIFF},
+	{NULL, ScreenshotFormat::SCREENSHOT_FORMAT_INVALID} // End of list marker
+};
 
 enum HuntingMode {
 	HUNTING_MODE_DISABLED = 0,
@@ -550,6 +562,9 @@ struct Globals
 	TextureOverrideMap mTextureOverrideMap;
 	FuzzyTextureOverrides mFuzzyTextureOverrides;
 
+	// ED Screenshot section
+	ScreenshotFormat mScreenshotFormat;
+
 	// Statistics
 	///////////////////////////////////////////////////////////////////////
 	//                                                                   //
@@ -694,7 +709,9 @@ struct Globals
 		gWipeUserConfig(false),
 		user_config_dirty(0),
 		gLogInput(false),
-		dump_all_profiles(false)
+		dump_all_profiles(false),
+
+		mScreenshotFormat(ScreenshotFormat::SCREENSHOT_FORMAT_INVALID)
 	{
 		int i;
 

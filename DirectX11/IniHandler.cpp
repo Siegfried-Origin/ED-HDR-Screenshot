@@ -4416,6 +4416,8 @@ void LoadConfigFile()
 	// [EDScreenshot]
 	LogInfo("[EDScreenshot]\n");
 	RegisterIniKeyBinding(L"EDScreenshot", L"screenshot", EDScreenshot, NULL, 0, NULL);
+	G->mScreenshotFormat = GetIniEnumClass(L"EDScreenshot", L"format", ScreenshotFormat::SCREENSHOT_FORMAT_INVALID, NULL, ScreenshotFormatNames);
+
 	// TODO: allow configurable subfolder
 	/*
 	if (GetIniStringAndLog(L"EDScreenshot", L"folder", 0, setting, MAX_PATH)) {

@@ -2807,20 +2807,44 @@ void HackerContext::SetShaderResources(UINT StartSlot, UINT NumViews,
 					wcscat_s(path, MAX_PATH, file_prefix);
 
 					wcscat_s(path, MAX_PATH, hash_string.c_str());
-					wcscat_s(path, MAX_PATH, L".exr");
 
-					// Convert to char*
-					wcstombs(final_path, path, MAX_PATH);
+					bool writeOK = false;
 
-					// TODO: make sure we're in R11G11B10
-					FrameExport::SaveR11G11B10TextureAsEXR(
-						this->mOrigDevice1,
-						this,
-						(ID3D11Texture2D*)resource,
-						final_path
-					);
+					switch (G->mScreenshotFormat) {
+						case ScreenshotFormat::SCREENSHOT_FORMAT_EXR:
+							wcscat_s(path, MAX_PATH, L".exr");
 
-					LogInfo("  ED Screenshot - %s\n", final_path);
+							// Convert to char*
+							wcstombs(final_path, path, MAX_PATH);
+
+							writeOK = FrameExport::SaveR11G11B10TextureAsEXR(
+								this->mOrigDevice1,
+								this,
+								(ID3D11Texture2D*)resource,
+								final_path
+							);
+							break;
+						default:
+							wcscat_s(path, MAX_PATH, L".tiff");
+
+							// Convert to char*
+							wcstombs(final_path, path, MAX_PATH);
+
+							writeOK = FrameExport::SaveR11G11B10TextureAsTIFF(
+								this->mOrigDevice1,
+								this,
+								(ID3D11Texture2D*)resource,
+								final_path
+							);
+							break;
+					}
+
+					if (writeOK) {
+						LogInfo("  ED Screenshot - %s\n", final_path);
+					}
+					else {
+						LogInfo("  ED Screenshot - Error while writting %s\n", final_path);
+					}
 				}
 			}
 			catch (std::exception& e) {

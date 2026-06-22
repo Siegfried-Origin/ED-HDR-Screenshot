@@ -13,6 +13,7 @@
 #undef min
 #undef max
 #include <tinyexr.h>
+#include <tiffio.h>
 
 
 float FrameExport::DecodeR11G11B10Component(
@@ -206,6 +207,109 @@ bool FrameExport::SaveR11G11B10TextureAsEXR(
         }
         return false;
     }
+
+    return true;
+}
+
+
+
+bool FrameExport::SaveR11G11B10TextureAsTIFF(
+    ID3D11Device* device,
+    ID3D11DeviceContext* context,
+    ID3D11Texture2D* srcTex,
+    const char* filename)
+{
+    D3D11_TEXTURE2D_DESC desc;
+    srcTex->GetDesc(&desc);
+
+    if (desc.Format != DXGI_FORMAT_R11G11B10_FLOAT) {
+        return false;
+    }
+
+    D3D11_TEXTURE2D_DESC stagingDesc = desc;
+    stagingDesc.BindFlags       = 0;
+    stagingDesc.CPUAccessFlags  = D3D11_CPU_ACCESS_READ;
+    stagingDesc.Usage           = D3D11_USAGE_STAGING;
+    stagingDesc.MiscFlags       = 0;
+
+    ID3D11Texture2D* staging = nullptr;
+
+    HRESULT hr = device->CreateTexture2D(
+        &stagingDesc,
+        nullptr,
+        &staging);
+
+    if (FAILED(hr))
+        return false;
+
+    context->CopyResource(staging, srcTex);
+
+    D3D11_MAPPED_SUBRESOURCE mapped;
+
+    hr = context->Map(
+        staging,
+        0,
+        D3D11_MAP_READ,
+        0,
+        &mapped);
+
+    if (FAILED(hr)) {
+        staging->Release();
+        return false;
+    }
+
+    const int width = (int)desc.Width;
+    const int height = (int)desc.Height;
+
+    std::vector<float> image(3 * width * height);
+
+    for (int y = 0; y < height; y++) {
+        const uint32_t* row =
+            (const uint32_t*)
+            ((const uint8_t*)mapped.pData +
+                y * mapped.RowPitch);
+
+        for (int x = 0; x < width; x++) {
+            float r, g, b;
+            DecodeR11G11B10Float(row[x], r, g, b);
+
+            int idx = y * width + x;
+
+            image[3 * idx + 0] = r;
+            image[3 * idx + 1] = g;
+            image[3 * idx + 2] = b;
+        }
+    }
+
+    context->Unmap(staging, 0);
+    staging->Release();
+
+    TIFF* tif = TIFFOpen(filename, "w");
+
+    if (!tif)
+        return false;
+
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, width);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, height);
+    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
+    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+    TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_ADOBE_DEFLATE);
+    TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, 0));
+
+    for (int y = 0; y < height; y++) {
+        const float* row = &image[3 * y * width];
+
+        if (TIFFWriteScanline(tif, (void*)row, y, 0) < 0) {
+            //LogInfo("TIFF error: %s\n", TIFFErrorExt());
+            TIFFClose(tif);
+            return false;
+        }
+    }
+
+    TIFFClose(tif);
 
     return true;
 }
