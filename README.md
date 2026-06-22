@@ -27,9 +27,9 @@ Although the tool can run without EDHM, installing EDHM is strongly recommended 
 ## Installation
 1. Install EDHM: https://bluemystical.github.io/edhm-api/
 2. Get to the latest release: https://github.com/Siegfried-Origin/ED-HDR-Screenshot/releases/latest
-3. Download ED.HDR.Screenshot.v0.1.zip from the list bellow.
+3. Download the ZIP file `ED.HDR.Screenshot.vXXX.zip` from the list.
 4. Navigate to your Elite Dangerous installation folder (for example: `C:\Program Files (x86)\Steam\steamapps\common\Elite Dangerous\Products\elite-dangerous-odyssey-64`).
-5. Replace the existing `d3d11.dll` with the one included in this ZIP file.
+5. Replace the existing `d3d11.dll` with the one included in the ZIP file.
 6. Copy `EDHM-ini\3rdPartyMods\EDScreenshot.ini` from the ZIP file to your `EDHM-ini\3rdPartyMods` folder.
 
 You can now press `F12` to capture an HDR screenshot.
